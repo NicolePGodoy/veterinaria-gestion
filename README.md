@@ -1,2 +1,1 @@
-# veterinaria-gestion
-Veterinaria virtual proyecto pruebas de software 2
+#NO ha hecho nada
