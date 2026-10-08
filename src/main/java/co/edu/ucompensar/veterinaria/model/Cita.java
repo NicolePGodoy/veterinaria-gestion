@@ -1,4 +1,15 @@
 package co.edu.ucompensar.veterinaria.model;
 
-public class Cita {
+import jakarta.persistence.*;
+
+    @Entity
+    public class Cita {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @ManyToOne(optional = false)
+        private Mascota mascota;
+
+    }
 }
