@@ -1,4 +1,4 @@
 package co.edu.ucompensar.veterinaria;
 
-public class MascotaServiceImplTest {
+public class CitaServiceImplTest {
 }
