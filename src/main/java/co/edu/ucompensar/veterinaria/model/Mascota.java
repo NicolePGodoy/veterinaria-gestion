@@ -10,6 +10,48 @@ public class Mascota {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private long especie;
+    private String nombre;
+    private String especie;
+    private String nombrePropietario;
+    private String telefomopropietario;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getEspecie() {
+        return especie;
+    }
+
+    public void setEspecie(String especie) {
+        this.especie = especie;
+    }
+
+    public String getNombrePropietario() {
+        return nombrePropietario;
+    }
+
+    public void setNombrePropietario(String nombrePropietario) {
+        this.nombrePropietario = nombrePropietario;
+    }
+
+    public String getTelefomopropietario() {
+        return telefomopropietario;
+    }
+
+    public void setTelefomopropietario(String telefomopropietario) {
+        this.telefomopropietario = telefomopropietario;
+    }
 }
