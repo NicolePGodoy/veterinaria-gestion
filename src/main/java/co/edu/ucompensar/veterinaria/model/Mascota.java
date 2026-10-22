@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.util.List;
+
 @Entity
 public class Mascota {
     @Id
@@ -14,6 +16,7 @@ public class Mascota {
     private String especie;
     private String nombrePropietario;
     private String telefomopropietario;
+    private List<Cita> citas;
 
     public long getId() {
         return id;
@@ -53,5 +56,9 @@ public class Mascota {
 
     public void setTelefomopropietario(String telefomopropietario) {
         this.telefomopropietario = telefomopropietario;
+    }
+
+    public void setCitas(List<Cita> citas) {
+        this.citas = citas;
     }
 }

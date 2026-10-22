@@ -1,5 +1,7 @@
 package co.edu.ucompensar.veterinaria;
 
+import co.edu.ucompensar.veterinaria.expetios.ValidationException;
+import co.edu.ucompensar.veterinaria.model.Cita;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
 import co.edu.ucompensar.veterinaria.model.Mascota;
 import co.edu.ucompensar.veterinaria.service.MascotaServiceImpl;
@@ -10,11 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MascotaServiceImplTest {
@@ -48,6 +50,35 @@ public class MascotaServiceImplTest {
         //recordar que el llamo como numero a la mascota con el numero L pero le toco covertitlo en String para que lograra encontrarlo
         Assert.assertEquals("22", mascotaBD.getNombre().toString());
         verify(mascotaRepository).save(mascota);
+    }
+
+    @Test
+    void registrar_mascota_nombre_vacio() {
+        Mascota mascota = new Mascota();
+
+        mascota.setNombre("Pecas");
+        mascota.setEspecie("Dalmata");
+        mascota.setTelefomopropietario("343434");
+
+        //recordar que el llamo como numero a la mascota con el numero L pero le toco covertitlo en String para que lograra encontrarlo
+        Assert.assertThrows(ValidationException.class ,() -> mascotaService.registrar(mascota));
+        verify(mascotaRepository,never()).save(any());
+    }
+
+    @Test
+    void consultar_mascotaExistente_devuelveMascotaConCitas() {
+        // Arrange
+        Mascota mascota = crearMascota();
+        mascota.setId(1L);
+        mascota.setCitas(List.of(new Cita()));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
+
+        // Act
+        Mascota resultado = mascotaService.consultar(1L);
+
+        // Assert
+        assertSame(mascota, resultado);
+        assertEquals(1, resultado.getCitas().size());
     }
 
     @Test
