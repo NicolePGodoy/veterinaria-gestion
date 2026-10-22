@@ -1,4 +1,8 @@
 package co.edu.ucompensar.veterinaria.repository;
 
-public class CitaRepository {
+
+import co.edu.ucompensar.veterinaria.model.Cita;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CitaRepository extends JpaRepository<Cita, Long> {
 }
