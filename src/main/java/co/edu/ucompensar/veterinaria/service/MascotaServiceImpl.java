@@ -1,43 +1,50 @@
 package co.edu.ucompensar.veterinaria.service;
 
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 import co.edu.ucompensar.veterinaria.model.Mascota;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class MascotaServiceImpl implements MascotaService {
 
-    private MascotaRepository mascotaRepository;
+    private final MascotaRepository mascotaRepository;
+
     public MascotaServiceImpl(MascotaRepository mascotaRepository) {
         this.mascotaRepository = mascotaRepository;
     }
+
     @Override
     public Mascota registrar(Mascota mascota) {
+        exigirTexto(mascota.getNombre(), "El nombre es obligatorio");
+        exigirTexto(mascota.getEspecie(), "La especie es obligatoria");
         return mascotaRepository.save(mascota);
     }
 
     @Override
-    public Mascota actualizar(Mascota mascota, Long id) {
-        return mascota1 = mascotaRepository.findById(Id).get();
-        mascota1
+    public Mascota consultar(Long id) {
+        return buscarPorId(id);
     }
 
     @Override
-    public boolean eliminar(Long id) {
-        Mascota mascota1 = ObtenerPorId(Id);
-        if (mascota1 != null)
-            return mascota1 = mascotaRepository.findById();
+    public Mascota actualizarPropietario(Long id, String nombrePropietario, String telefonoPropietario) {
+        Mascota mascota = buscarPorId(id);
+        mascota.setNombrePropietario(nombrePropietario);
+        mascota.setTelefonoPropietario(telefonoPropietario);
+        return mascotaRepository.save(mascota);
     }
 
-    @Override
-    public Mascota ObtenerPorId(Long id) {
-        return null;
+    private void exigirTexto(String valor, String mensaje) {
+        if (valor == null || valor.isBlank()) {
+            throw new ValidacionException(mensaje);
+        }
     }
 
-    @Override
-    public List<Mascota> listarTodo() {
-        return List.of();
+    private Mascota buscarPorId(Long id) {
+        return mascotaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + id));
     }
-}
-// implementar peticiones que se realizan , metodos
+}}
