@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 public class CitaServiceImpl implements CitaService {
 
     private static final String PENDIENTE = "PENDIENTE";
+    private static final String ATENDIDA = "ATENDIDA";
+    private static final String CANCELADA = "CANCELADA";
 
     private final MascotaRepository mascotaRepository;
     private final CitaRepository citaRepository;
@@ -34,6 +36,9 @@ public class CitaServiceImpl implements CitaService {
     @Override
     public Cita cambiarEstado(Long id, String nuevoEstado) {
         Cita cita = citaRepository.findById(id).orElseThrow();
+        if (ATENDIDA.equals(cita.getEstado()) && CANCELADA.equals(nuevoEstado)) {
+            throw new ReglaNegocioException("Una cita atendida no puede cancelarse");
+        }
         cita.setEstado(nuevoEstado);
         return citaRepository.save(cita);
     }
