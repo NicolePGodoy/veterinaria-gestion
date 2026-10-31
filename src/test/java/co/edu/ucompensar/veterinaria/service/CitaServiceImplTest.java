@@ -130,4 +130,18 @@ class CitaServiceImplTest {
         // Act + Assert
         assertThrows(RecursoNoEncontradoException.class, () -> citaService.cambiarEstado(99L, "ATENDIDA"));
     }
+
+    @Test
+    void cambiarEstado_pendienteACancelada_actualizaEstado() {
+        // Arrange
+        Cita cita = citaConEstado(5L, "PENDIENTE");
+        when(citaRepository.findById(5L)).thenReturn(Optional.of(cita));
+        when(citaRepository.save(cita)).thenReturn(cita);
+
+        // Act
+        Cita resultado = citaService.cambiarEstado(5L, "CANCELADA");
+
+        // Assert
+        assertEquals("CANCELADA", resultado.getEstado());
+    }
 }
