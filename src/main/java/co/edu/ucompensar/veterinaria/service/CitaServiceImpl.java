@@ -33,7 +33,9 @@ public class CitaServiceImpl implements CitaService {
 
     @Override
     public Cita cambiarEstado(Long id, String nuevoEstado) {
-        throw new UnsupportedOperationException();
+        Cita cita = citaRepository.findById(id).orElseThrow();
+        cita.setEstado(nuevoEstado);
+        return citaRepository.save(cita);
     }
 
     private void exigirMascotaExistente(Long mascotaId) {
