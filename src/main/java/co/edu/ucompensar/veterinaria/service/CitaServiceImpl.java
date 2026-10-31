@@ -35,7 +35,8 @@ public class CitaServiceImpl implements CitaService {
 
     @Override
     public Cita cambiarEstado(Long id, String nuevoEstado) {
-        Cita cita = citaRepository.findById(id).orElseThrow();
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no existe: " + id));
         if (ATENDIDA.equals(cita.getEstado()) && CANCELADA.equals(nuevoEstado)) {
             throw new ReglaNegocioException("Una cita atendida no puede cancelarse");
         }
