@@ -3,6 +3,7 @@ package co.edu.ucompensar.veterinaria.service;
 import co.edu.ucompensar.veterinaria.model.Cita;
 import co.edu.ucompensar.veterinaria.repository.CitaRepository;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +22,8 @@ public class CitaServiceImpl implements CitaService {
     @Override
     public Cita agendar(Cita cita) {
         Long mascotaId = cita.getMascota().getId();
-        mascotaRepository.findById(mascotaId).orElseThrow();
+        mascotaRepository.findById(mascotaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + mascotaId));
         cita.setEstado(PENDIENTE);
         return citaRepository.save(cita);
     }
