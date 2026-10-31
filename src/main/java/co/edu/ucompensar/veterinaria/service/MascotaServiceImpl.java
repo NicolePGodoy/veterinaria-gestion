@@ -28,6 +28,11 @@ public class MascotaServiceImpl implements MascotaService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + id));
     }
 
+    @Override
+    public Mascota actualizarPropietario(Long id, String nombrePropietario, String telefonoPropietario) {
+        throw new UnsupportedOperationException();
+    }
+
     private void exigirTexto(String valor, String mensaje) {
         if (valor == null || valor.isBlank()) {
             throw new ValidacionException(mensaje);

@@ -12,6 +12,7 @@ import co.edu.ucompensar.veterinaria.model.Cita;
 import java.util.List;
 import java.util.Optional;
 import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
+import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -95,5 +96,22 @@ class MascotaServiceImplTest {
 
         // Act + Assert
         assertThrows(RecursoNoEncontradoException.class, () -> mascotaService.consultar(99L));
+    }
+
+    @Test
+    void actualizarPropietario_datosValidos_guardaCambios() {
+        // Arrange
+        Mascota existente = mascotaValida();
+        existente.setId(1L);
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(existente));
+
+        // Act
+        mascotaService.actualizarPropietario(1L, "Luis Pérez", "3109876543");
+
+        // Assert
+        ArgumentCaptor<Mascota> captor = ArgumentCaptor.forClass(Mascota.class);
+        verify(mascotaRepository).save(captor.capture());
+        assertEquals("Luis Pérez", captor.getValue().getNombrePropietario());
+        assertEquals("3109876543", captor.getValue().getTelefonoPropietario());
     }
 }
