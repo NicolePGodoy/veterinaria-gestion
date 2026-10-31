@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -43,5 +44,16 @@ class MascotaServiceImplTest {
         // Assert
         assertEquals(1L, resultado.getId());
         verify(mascotaRepository).save(entrada);
+    }
+
+    @Test
+    void registrar_nombreVacio_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Mascota mascota = mascotaValida();
+        mascota.setNombre("");
+
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        verify(mascotaRepository, never()).save(any());
     }
 }
