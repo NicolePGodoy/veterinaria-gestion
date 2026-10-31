@@ -19,6 +19,9 @@ public class MascotaServiceImpl implements MascotaService {
         if (mascota.getNombre() == null || mascota.getNombre().isBlank()) {
             throw new ValidacionException("El nombre es obligatorio");
         }
+        if (mascota.getEspecie() == null || mascota.getEspecie().isBlank()) {
+            throw new ValidacionException("La especie es obligatoria");
+        }
         return mascotaRepository.save(mascota);
     }
 }
