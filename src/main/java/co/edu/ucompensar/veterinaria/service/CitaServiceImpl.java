@@ -29,6 +29,9 @@ public class CitaServiceImpl implements CitaService {
         if (!cita.getFecha().isAfter(LocalDateTime.now())) {
             throw new ReglaNegocioException("La fecha de la cita debe ser futura");
         }
+        if (citaRepository.existsByMascotaIdAndFecha(mascotaId, cita.getFecha())) {
+            throw new ReglaNegocioException("La mascota ya tiene una cita en ese horario");
+        }
         cita.setEstado(PENDIENTE);
         return citaRepository.save(cita);
     }
