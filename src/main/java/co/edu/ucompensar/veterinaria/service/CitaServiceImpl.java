@@ -24,15 +24,27 @@ public class CitaServiceImpl implements CitaService {
     @Override
     public Cita agendar(Cita cita) {
         Long mascotaId = cita.getMascota().getId();
+        exigirMascotaExistente(mascotaId);
+        exigirFechaFutura(cita);
+        exigirHorarioLibre(mascotaId, cita);
+        cita.setEstado(PENDIENTE);
+        return citaRepository.save(cita);
+    }
+
+    private void exigirMascotaExistente(Long mascotaId) {
         mascotaRepository.findById(mascotaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + mascotaId));
+    }
+
+    private void exigirFechaFutura(Cita cita) {
         if (!cita.getFecha().isAfter(LocalDateTime.now())) {
             throw new ReglaNegocioException("La fecha de la cita debe ser futura");
         }
+    }
+
+    private void exigirHorarioLibre(Long mascotaId, Cita cita) {
         if (citaRepository.existsByMascotaIdAndFecha(mascotaId, cita.getFecha())) {
             throw new ReglaNegocioException("La mascota ya tiene una cita en ese horario");
         }
-        cita.setEstado(PENDIENTE);
-        return citaRepository.save(cita);
     }
 }
