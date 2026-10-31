@@ -24,14 +24,12 @@ public class MascotaServiceImpl implements MascotaService {
 
     @Override
     public Mascota consultar(Long id) {
-        return mascotaRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + id));
+        return buscarPorId(id);
     }
 
     @Override
     public Mascota actualizarPropietario(Long id, String nombrePropietario, String telefonoPropietario) {
-        Mascota mascota = mascotaRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + id));
+        Mascota mascota = buscarPorId(id);
         mascota.setNombrePropietario(nombrePropietario);
         mascota.setTelefonoPropietario(telefonoPropietario);
         return mascotaRepository.save(mascota);
@@ -41,5 +39,10 @@ public class MascotaServiceImpl implements MascotaService {
         if (valor == null || valor.isBlank()) {
             throw new ValidacionException(mensaje);
         }
+    }
+
+    private Mascota buscarPorId(Long id) {
+        return mascotaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + id));
     }
 }
