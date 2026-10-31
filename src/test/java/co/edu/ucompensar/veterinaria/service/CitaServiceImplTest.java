@@ -110,4 +110,15 @@ class CitaServiceImplTest {
         assertEquals("ATENDIDA", resultado.getEstado());
         verify(citaRepository).save(cita);
     }
+
+    @Test
+    void cambiarEstado_atendidaACancelada_lanzaReglaNegocioYNoGuarda() {
+        // Arrange
+        Cita cita = citaConEstado(5L, "ATENDIDA");
+        when(citaRepository.findById(5L)).thenReturn(Optional.of(cita));
+
+        // Act + Assert
+        assertThrows(ReglaNegocioException.class, () -> citaService.cambiarEstado(5L, "CANCELADA"));
+        verify(citaRepository, never()).save(any());
+    }
 }
