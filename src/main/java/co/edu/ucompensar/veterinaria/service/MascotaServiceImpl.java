@@ -30,7 +30,8 @@ public class MascotaServiceImpl implements MascotaService {
 
     @Override
     public Mascota actualizarPropietario(Long id, String nombrePropietario, String telefonoPropietario) {
-        Mascota mascota = mascotaRepository.findById(id).orElseThrow();
+        Mascota mascota = mascotaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + id));
         mascota.setNombrePropietario(nombrePropietario);
         mascota.setTelefonoPropietario(telefonoPropietario);
         return mascotaRepository.save(mascota);
