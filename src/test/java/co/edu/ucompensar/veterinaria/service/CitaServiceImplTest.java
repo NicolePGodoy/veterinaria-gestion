@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
+import co.edu.ucompensar.veterinaria.exception.ReglaNegocioException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -61,6 +62,18 @@ class CitaServiceImplTest {
 
         // Act + Assert
         assertThrows(RecursoNoEncontradoException.class, () -> citaService.agendar(citaFutura(99L)));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void agendar_fechaPasada_lanzaReglaNegocioYNoGuarda() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        cita.setFecha(LocalDateTime.now().minusDays(1));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(cita.getMascota()));
+
+        // Act + Assert
+        assertThrows(ReglaNegocioException.class, () -> citaService.agendar(cita));
         verify(citaRepository, never()).save(any());
     }
 }
