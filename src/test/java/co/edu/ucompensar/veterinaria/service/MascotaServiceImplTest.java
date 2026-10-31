@@ -114,4 +114,15 @@ class MascotaServiceImplTest {
         assertEquals("Luis Pérez", captor.getValue().getNombrePropietario());
         assertEquals("3109876543", captor.getValue().getTelefonoPropietario());
     }
+
+    @Test
+    void actualizarPropietario_idInexistente_lanzaNoEncontradoYNoGuarda() {
+        // Arrange
+        when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(RecursoNoEncontradoException.class,
+                () -> mascotaService.actualizarPropietario(99L, "Luis Pérez", "3109876543"));
+        verify(mascotaRepository, never()).save(any());
+    }
 }
