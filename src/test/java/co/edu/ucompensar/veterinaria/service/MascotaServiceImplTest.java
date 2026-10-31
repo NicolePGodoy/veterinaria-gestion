@@ -11,6 +11,7 @@ import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 import co.edu.ucompensar.veterinaria.model.Cita;
 import java.util.List;
 import java.util.Optional;
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -85,5 +86,14 @@ class MascotaServiceImplTest {
         // Assert
         assertSame(mascota, resultado);
         assertEquals(1, resultado.getCitas().size());
+    }
+
+    @Test
+    void consultar_idInexistente_lanzaNoEncontrado() {
+        // Arrange
+        when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(RecursoNoEncontradoException.class, () -> mascotaService.consultar(99L));
     }
 }
