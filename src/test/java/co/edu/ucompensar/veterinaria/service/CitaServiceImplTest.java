@@ -76,4 +76,16 @@ class CitaServiceImplTest {
         assertThrows(ReglaNegocioException.class, () -> citaService.agendar(cita));
         verify(citaRepository, never()).save(any());
     }
+
+    @Test
+    void agendar_horarioOcupado_lanzaReglaNegocioYNoGuarda() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(cita.getMascota()));
+        when(citaRepository.existsByMascotaIdAndFecha(1L, cita.getFecha())).thenReturn(true);
+
+        // Act + Assert
+        assertThrows(ReglaNegocioException.class, () -> citaService.agendar(cita));
+        verify(citaRepository, never()).save(any());
+    }
 }
