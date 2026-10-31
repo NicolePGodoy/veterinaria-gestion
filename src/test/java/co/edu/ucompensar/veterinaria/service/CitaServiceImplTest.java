@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -51,5 +52,15 @@ class CitaServiceImplTest {
         // Assert
         assertEquals("PENDIENTE", resultado.getEstado());
         verify(citaRepository).save(cita);
+    }
+
+    @Test
+    void agendar_mascotaInexistente_lanzaNoEncontradoYNoGuarda() {
+        // Arrange
+        when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(RecursoNoEncontradoException.class, () -> citaService.agendar(citaFutura(99L)));
+        verify(citaRepository, never()).save(any());
     }
 }
