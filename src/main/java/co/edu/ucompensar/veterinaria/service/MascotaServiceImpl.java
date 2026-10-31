@@ -21,6 +21,11 @@ public class MascotaServiceImpl implements MascotaService {
         return mascotaRepository.save(mascota);
     }
 
+    @Override
+    public Mascota consultar(Long id) {
+        throw new UnsupportedOperationException();
+    }
+
     private void exigirTexto(String valor, String mensaje) {
         if (valor == null || valor.isBlank()) {
             throw new ValidacionException(mensaje);

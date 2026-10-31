@@ -8,6 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import co.edu.ucompensar.veterinaria.exception.ValidacionException;
+import co.edu.ucompensar.veterinaria.model.Cita;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -66,5 +69,21 @@ class MascotaServiceImplTest {
         // Act + Assert
         assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
         verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
+    void consultar_mascotaExistente_devuelveMascotaConCitas() {
+        // Arrange
+        Mascota mascota = mascotaValida();
+        mascota.setId(1L);
+        mascota.setCitas(List.of(new Cita()));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
+
+        // Act
+        Mascota resultado = mascotaService.consultar(1L);
+
+        // Assert
+        assertSame(mascota, resultado);
+        assertEquals(1, resultado.getCitas().size());
     }
 }

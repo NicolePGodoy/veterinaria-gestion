@@ -1,6 +1,8 @@
 package co.edu.ucompensar.veterinaria.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Mascota {
@@ -12,6 +14,9 @@ public class Mascota {
     private String nombrePropietario;
     private String telefonoPropietario;
 
+    @OneToMany(mappedBy = "mascota")
+    private List<Cita> citas = new ArrayList<>();
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNombre() { return nombre; }
@@ -22,4 +27,6 @@ public class Mascota {
     public void setNombrePropietario(String nombrePropietario) { this.nombrePropietario = nombrePropietario; }
     public String getTelefonoPropietario() { return telefonoPropietario; }
     public void setTelefonoPropietario(String telefonoPropietario) { this.telefonoPropietario = telefonoPropietario; }
+    public List<Cita> getCitas() { return citas; }
+    public void setCitas(List<Cita> citas) { this.citas = citas; }
 }
