@@ -16,12 +16,14 @@ public class MascotaServiceImpl implements MascotaService {
 
     @Override
     public Mascota registrar(Mascota mascota) {
-        if (mascota.getNombre() == null || mascota.getNombre().isBlank()) {
-            throw new ValidacionException("El nombre es obligatorio");
-        }
-        if (mascota.getEspecie() == null || mascota.getEspecie().isBlank()) {
-            throw new ValidacionException("La especie es obligatoria");
-        }
+        exigirTexto(mascota.getNombre(), "El nombre es obligatorio");
+        exigirTexto(mascota.getEspecie(), "La especie es obligatoria");
         return mascotaRepository.save(mascota);
+    }
+
+    private void exigirTexto(String valor, String mensaje) {
+        if (valor == null || valor.isBlank()) {
+            throw new ValidacionException(mensaje);
+        }
     }
 }
