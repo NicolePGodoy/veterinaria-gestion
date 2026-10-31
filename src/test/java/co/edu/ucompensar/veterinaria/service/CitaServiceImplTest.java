@@ -40,6 +40,13 @@ class CitaServiceImplTest {
         return cita;
     }
 
+    private Cita citaConEstado(Long id, String estado) {
+        Cita cita = new Cita();
+        cita.setId(id);
+        cita.setEstado(estado);
+        return cita;
+    }
+
     @Test
     void agendar_mascotaExisteFechaFuturaHorarioLibre_guardaCitaPendiente() {
         // Arrange
@@ -87,5 +94,20 @@ class CitaServiceImplTest {
         // Act + Assert
         assertThrows(ReglaNegocioException.class, () -> citaService.agendar(cita));
         verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void cambiarEstado_pendienteAAtendida_actualizaEstado() {
+        // Arrange
+        Cita cita = citaConEstado(5L, "PENDIENTE");
+        when(citaRepository.findById(5L)).thenReturn(Optional.of(cita));
+        when(citaRepository.save(cita)).thenReturn(cita);
+
+        // Act
+        Cita resultado = citaService.cambiarEstado(5L, "ATENDIDA");
+
+        // Assert
+        assertEquals("ATENDIDA", resultado.getEstado());
+        verify(citaRepository).save(cita);
     }
 }

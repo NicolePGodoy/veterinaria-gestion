@@ -31,6 +31,11 @@ public class CitaServiceImpl implements CitaService {
         return citaRepository.save(cita);
     }
 
+    @Override
+    public Cita cambiarEstado(Long id, String nuevoEstado) {
+        throw new UnsupportedOperationException();
+    }
+
     private void exigirMascotaExistente(Long mascotaId) {
         mascotaRepository.findById(mascotaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + mascotaId));
