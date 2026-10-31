@@ -23,7 +23,7 @@ public class MascotaServiceImpl implements MascotaService {
 
     @Override
     public Mascota consultar(Long id) {
-        throw new UnsupportedOperationException();
+        return mascotaRepository.findById(id).orElseThrow();
     }
 
     private void exigirTexto(String valor, String mensaje) {
