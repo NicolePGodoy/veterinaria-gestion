@@ -56,4 +56,15 @@ class MascotaServiceImplTest {
         assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
         verify(mascotaRepository, never()).save(any());
     }
+
+    @Test
+    void registrar_especieVacia_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Mascota mascota = mascotaValida();
+        mascota.setEspecie("");
+
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        verify(mascotaRepository, never()).save(any());
+    }
 }
