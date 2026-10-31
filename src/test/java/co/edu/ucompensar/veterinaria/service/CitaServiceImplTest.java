@@ -121,4 +121,13 @@ class CitaServiceImplTest {
         assertThrows(ReglaNegocioException.class, () -> citaService.cambiarEstado(5L, "CANCELADA"));
         verify(citaRepository, never()).save(any());
     }
+
+    @Test
+    void cambiarEstado_idInexistente_lanzaNoEncontrado() {
+        // Arrange
+        when(citaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(RecursoNoEncontradoException.class, () -> citaService.cambiarEstado(99L, "ATENDIDA"));
+    }
 }
