@@ -30,7 +30,10 @@ public class MascotaServiceImpl implements MascotaService {
 
     @Override
     public Mascota actualizarPropietario(Long id, String nombrePropietario, String telefonoPropietario) {
-        throw new UnsupportedOperationException();
+        Mascota mascota = mascotaRepository.findById(id).orElseThrow();
+        mascota.setNombrePropietario(nombrePropietario);
+        mascota.setTelefonoPropietario(telefonoPropietario);
+        return mascotaRepository.save(mascota);
     }
 
     private void exigirTexto(String valor, String mensaje) {
