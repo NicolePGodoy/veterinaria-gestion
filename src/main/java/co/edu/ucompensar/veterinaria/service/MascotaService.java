@@ -1,14 +1,10 @@
 package co.edu.ucompensar.veterinaria.service;
-import co.edu.ucompensar.veterinaria.model.Mascota;
 
-import java.util.List;
+import co.edu.ucompensar.veterinaria.model.Mascota;
 
 public interface MascotaService {
 
-    public Mascota registrar(Mascota mascota);
-    public Mascota actualizar(Mascota mascota, Long id);
-    public boolean eliminar(Long id);
-
-    public Mascota ObtenerPorId(Long id);
-    public List<Mascota> listarTodo();
+    Mascota registrar(Mascota mascota);
+    Mascota consultar(Long id);
+    Mascota actualizarPropietario(Long id, String nombrePropietario, String telefonoPropietario);
 }

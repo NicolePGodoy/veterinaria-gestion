@@ -1,57 +1,32 @@
 package co.edu.ucompensar.veterinaria.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Mascota {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String nombre;
     private String especie;
     private String nombrePropietario;
-    private String telefomopropietario;
+    private String telefonoPropietario;
 
-    public long getId() {
-        return id;
-    }
+    @OneToMany(mappedBy = "mascota")
+    private List<Cita> citas = new ArrayList<>();
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getEspecie() {
-        return especie;
-    }
-
-    public void setEspecie(String especie) {
-        this.especie = especie;
-    }
-
-    public String getNombrePropietario() {
-        return nombrePropietario;
-    }
-
-    public void setNombrePropietario(String nombrePropietario) {
-        this.nombrePropietario = nombrePropietario;
-    }
-
-    public String getTelefomopropietario() {
-        return telefomopropietario;
-    }
-
-    public void setTelefomopropietario(String telefomopropietario) {
-        this.telefomopropietario = telefomopropietario;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
+    public String getEspecie() { return especie; }
+    public void setEspecie(String especie) { this.especie = especie; }
+    public String getNombrePropietario() { return nombrePropietario; }
+    public void setNombrePropietario(String nombrePropietario) { this.nombrePropietario = nombrePropietario; }
+    public String getTelefonoPropietario() { return telefonoPropietario; }
+    public void setTelefonoPropietario(String telefonoPropietario) { this.telefonoPropietario = telefonoPropietario; }
+    public List<Cita> getCitas() { return citas; }
+    public void setCitas(List<Cita> citas) { this.citas = citas; }
 }

@@ -1,0 +1,147 @@
+package co.edu.ucompensar.veterinaria.service;
+
+import co.edu.ucompensar.veterinaria.model.Cita;
+import co.edu.ucompensar.veterinaria.model.Mascota;
+import co.edu.ucompensar.veterinaria.repository.CitaRepository;
+import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
+import co.edu.ucompensar.veterinaria.exception.ReglaNegocioException;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class CitaServiceImplTest {
+
+    @Mock
+    private MascotaRepository mascotaRepository;
+
+    @Mock
+    private CitaRepository citaRepository;
+
+    @InjectMocks
+    private CitaServiceImpl citaService;
+
+    private Cita citaFutura(Long mascotaId) {
+        Mascota mascota = new Mascota();
+        mascota.setId(mascotaId);
+        Cita cita = new Cita();
+        cita.setMascota(mascota);
+        cita.setFecha(LocalDateTime.now().plusDays(1));
+        cita.setMotivo("vacunación");
+        cita.setVeterinarioAsignado("Dra. Rojas");
+        return cita;
+    }
+
+    private Cita citaConEstado(Long id, String estado) {
+        Cita cita = new Cita();
+        cita.setId(id);
+        cita.setEstado(estado);
+        return cita;
+    }
+
+    @Test
+    void agendar_mascotaExisteFechaFuturaHorarioLibre_guardaCitaPendiente() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(cita.getMascota()));
+        when(citaRepository.save(cita)).thenReturn(cita);
+
+        // Act
+        Cita resultado = citaService.agendar(cita);
+
+        // Assert
+        assertEquals("PENDIENTE", resultado.getEstado());
+        verify(citaRepository).save(cita);
+    }
+
+    @Test
+    void agendar_mascotaInexistente_lanzaNoEncontradoYNoGuarda() {
+        // Arrange
+        when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(RecursoNoEncontradoException.class, () -> citaService.agendar(citaFutura(99L)));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void agendar_fechaPasada_lanzaReglaNegocioYNoGuarda() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        cita.setFecha(LocalDateTime.now().minusDays(1));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(cita.getMascota()));
+
+        // Act + Assert
+        assertThrows(ReglaNegocioException.class, () -> citaService.agendar(cita));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void agendar_horarioOcupado_lanzaReglaNegocioYNoGuarda() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(cita.getMascota()));
+        when(citaRepository.existsByMascotaIdAndFecha(1L, cita.getFecha())).thenReturn(true);
+
+        // Act + Assert
+        assertThrows(ReglaNegocioException.class, () -> citaService.agendar(cita));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void cambiarEstado_pendienteAAtendida_actualizaEstado() {
+        // Arrange
+        Cita cita = citaConEstado(5L, "PENDIENTE");
+        when(citaRepository.findById(5L)).thenReturn(Optional.of(cita));
+        when(citaRepository.save(cita)).thenReturn(cita);
+
+        // Act
+        Cita resultado = citaService.cambiarEstado(5L, "ATENDIDA");
+
+        // Assert
+        assertEquals("ATENDIDA", resultado.getEstado());
+        verify(citaRepository).save(cita);
+    }
+
+    @Test
+    void cambiarEstado_atendidaACancelada_lanzaReglaNegocioYNoGuarda() {
+        // Arrange
+        Cita cita = citaConEstado(5L, "ATENDIDA");
+        when(citaRepository.findById(5L)).thenReturn(Optional.of(cita));
+
+        // Act + Assert
+        assertThrows(ReglaNegocioException.class, () -> citaService.cambiarEstado(5L, "CANCELADA"));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void cambiarEstado_idInexistente_lanzaNoEncontrado() {
+        // Arrange
+        when(citaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThrows(RecursoNoEncontradoException.class, () -> citaService.cambiarEstado(99L, "ATENDIDA"));
+    }
+
+    @Test
+    void cambiarEstado_pendienteACancelada_actualizaEstado() {
+        // Arrange
+        Cita cita = citaConEstado(5L, "PENDIENTE");
+        when(citaRepository.findById(5L)).thenReturn(Optional.of(cita));
+        when(citaRepository.save(cita)).thenReturn(cita);
+
+        // Act
+        Cita resultado = citaService.cambiarEstado(5L, "CANCELADA");
+
+        // Assert
+        assertEquals("CANCELADA", resultado.getEstado());
+    }
+}

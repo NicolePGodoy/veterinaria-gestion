@@ -1,12 +1,10 @@
 package co.edu.ucompensar.veterinaria.service;
 
-import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
-import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 import co.edu.ucompensar.veterinaria.model.Mascota;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class MascotaServiceImpl implements MascotaService {
@@ -47,4 +45,4 @@ public class MascotaServiceImpl implements MascotaService {
         return mascotaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + id));
     }
-}}
+}

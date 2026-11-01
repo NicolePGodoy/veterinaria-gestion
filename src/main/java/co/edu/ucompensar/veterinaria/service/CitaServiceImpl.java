@@ -1,44 +1,63 @@
 package co.edu.ucompensar.veterinaria.service;
 
-
 import co.edu.ucompensar.veterinaria.model.Cita;
-
 import co.edu.ucompensar.veterinaria.repository.CitaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
+import co.edu.ucompensar.veterinaria.exception.ReglaNegocioException;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class CitaServiceImpl implements CitaService {
 
+    private static final String PENDIENTE = "PENDIENTE";
+    private static final String ATENDIDA = "ATENDIDA";
+    private static final String CANCELADA = "CANCELADA";
+
+    private final MascotaRepository mascotaRepository;
     private final CitaRepository citaRepository;
 
-    @Autowired
-    public CitaServiceImpl(CitaRepository citaRepository) {this.citaRepository = citaRepository;}
+    public CitaServiceImpl(MascotaRepository mascotaRepository, CitaRepository citaRepository) {
+        this.mascotaRepository = mascotaRepository;
+        this.citaRepository = citaRepository;
+    }
 
     @Override
-    public Cita registrar(Cita cita) {
+    public Cita agendar(Cita cita) {
+        Long mascotaId = cita.getMascota().getId();
+        exigirMascotaExistente(mascotaId);
+        exigirFechaFutura(cita);
+        exigirHorarioLibre(mascotaId, cita);
+        cita.setEstado(PENDIENTE);
         return citaRepository.save(cita);
     }
 
     @Override
-    public Cita actualizar(Cita cita, Long id) {return citaRepository.save(cita);}
-
-    @Override
-    public boolean eliminar(Long id) {
-        if(obtenerPorId(id) != null){
-            citaRepository.deleteById(id);
-            return true;
+    public Cita cambiarEstado(Long id, String nuevoEstado) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Cita no existe: " + id));
+        if (ATENDIDA.equals(cita.getEstado()) && CANCELADA.equals(nuevoEstado)) {
+            throw new ReglaNegocioException("Una cita atendida no puede cancelarse");
         }
-        return false;
+        cita.setEstado(nuevoEstado);
+        return citaRepository.save(cita);
     }
 
-    @Override
-    public Cita obtenerPorId(Long id) {return citaRepository.getReferenceById(id);}
+    private void exigirMascotaExistente(Long mascotaId) {
+        mascotaRepository.findById(mascotaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Mascota no existe: " + mascotaId));
+    }
 
-    @Override
-    public List<Cita> listarTodo() {
-        return citaRepository.findAll();
+    private void exigirFechaFutura(Cita cita) {
+        if (!cita.getFecha().isAfter(LocalDateTime.now())) {
+            throw new ReglaNegocioException("La fecha de la cita debe ser futura");
+        }
+    }
+
+    private void exigirHorarioLibre(Long mascotaId, Cita cita) {
+        if (citaRepository.existsByMascotaIdAndFecha(mascotaId, cita.getFecha())) {
+            throw new ReglaNegocioException("La mascota ya tiene una cita en ese horario");
+        }
     }
 }
