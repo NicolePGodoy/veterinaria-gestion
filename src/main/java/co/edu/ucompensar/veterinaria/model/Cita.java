@@ -1,5 +1,6 @@
 package co.edu.ucompensar.veterinaria.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -9,6 +10,8 @@ public class Cita {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Evita el ciclo infinito Mascota -> citas -> mascota -> citas... al convertir a JSON
+    @JsonIgnoreProperties("citas")
     @ManyToOne(optional = false)
     private Mascota mascota;
 

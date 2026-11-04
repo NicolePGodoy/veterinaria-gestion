@@ -74,6 +74,28 @@ class MascotaServiceImplTest {
     }
 
     @Test
+    void registrar_sinNombrePropietario_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Mascota mascota = mascotaValida();
+        mascota.setNombrePropietario("  ");
+
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
+    void registrar_sinTelefonoPropietario_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Mascota mascota = mascotaValida();
+        mascota.setTelefonoPropietario(null);
+
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
     void consultar_mascotaExistente_devuelveMascotaConCitas() {
         // Arrange
         Mascota mascota = mascotaValida();
@@ -113,6 +135,22 @@ class MascotaServiceImplTest {
         verify(mascotaRepository).save(captor.capture());
         assertEquals("Luis Pérez", captor.getValue().getNombrePropietario());
         assertEquals("3109876543", captor.getValue().getTelefonoPropietario());
+    }
+
+    @Test
+    void actualizarPropietario_nombreVacio_lanzaValidacionYNoGuarda() {
+        // Act + Assert
+        assertThrows(ValidacionException.class,
+                () -> mascotaService.actualizarPropietario(1L, "", "3109876543"));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
+    void actualizarPropietario_telefonoVacio_lanzaValidacionYNoGuarda() {
+        // Act + Assert
+        assertThrows(ValidacionException.class,
+                () -> mascotaService.actualizarPropietario(1L, "Luis Pérez", " "));
+        verify(mascotaRepository, never()).save(any());
     }
 
     @Test

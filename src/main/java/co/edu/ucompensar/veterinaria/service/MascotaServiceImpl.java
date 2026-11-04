@@ -19,6 +19,8 @@ public class MascotaServiceImpl implements MascotaService {
     public Mascota registrar(Mascota mascota) {
         exigirTexto(mascota.getNombre(), "El nombre es obligatorio");
         exigirTexto(mascota.getEspecie(), "La especie es obligatoria");
+        exigirTexto(mascota.getNombrePropietario(), "El nombre del propietario es obligatorio");
+        exigirTexto(mascota.getTelefonoPropietario(), "El teléfono del propietario es obligatorio");
         return mascotaRepository.save(mascota);
     }
 
@@ -29,6 +31,8 @@ public class MascotaServiceImpl implements MascotaService {
 
     @Override
     public Mascota actualizarPropietario(Long id, String nombrePropietario, String telefonoPropietario) {
+        exigirTexto(nombrePropietario, "El nombre del propietario es obligatorio");
+        exigirTexto(telefonoPropietario, "El teléfono del propietario es obligatorio");
         Mascota mascota = buscarPorId(id);
         mascota.setNombrePropietario(nombrePropietario);
         mascota.setTelefonoPropietario(telefonoPropietario);
