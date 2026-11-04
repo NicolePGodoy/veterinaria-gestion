@@ -138,6 +138,22 @@ class MascotaServiceImplTest {
     }
 
     @Test
+    void actualizarPropietario_nombreVacio_lanzaValidacionYNoGuarda() {
+        // Act + Assert
+        assertThrows(ValidacionException.class,
+                () -> mascotaService.actualizarPropietario(1L, "", "3109876543"));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
+    void actualizarPropietario_telefonoVacio_lanzaValidacionYNoGuarda() {
+        // Act + Assert
+        assertThrows(ValidacionException.class,
+                () -> mascotaService.actualizarPropietario(1L, "Luis Pérez", " "));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
     void actualizarPropietario_idInexistente_lanzaNoEncontradoYNoGuarda() {
         // Arrange
         when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
