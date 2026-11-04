@@ -74,6 +74,28 @@ class MascotaServiceImplTest {
     }
 
     @Test
+    void registrar_sinNombrePropietario_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Mascota mascota = mascotaValida();
+        mascota.setNombrePropietario("  ");
+
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
+    void registrar_sinTelefonoPropietario_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Mascota mascota = mascotaValida();
+        mascota.setTelefonoPropietario(null);
+
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
     void consultar_mascotaExistente_devuelveMascotaConCitas() {
         // Arrange
         Mascota mascota = mascotaValida();
