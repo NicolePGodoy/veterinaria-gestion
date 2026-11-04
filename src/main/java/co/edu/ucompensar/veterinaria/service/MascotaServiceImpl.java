@@ -19,6 +19,8 @@ public class MascotaServiceImpl implements MascotaService {
     public Mascota registrar(Mascota mascota) {
         exigirTexto(mascota.getNombre(), "El nombre es obligatorio");
         exigirTexto(mascota.getEspecie(), "La especie es obligatoria");
+        exigirTexto(mascota.getNombrePropietario(), "El nombre del propietario es obligatorio");
+        exigirTexto(mascota.getTelefonoPropietario(), "El teléfono del propietario es obligatorio");
         return mascotaRepository.save(mascota);
     }
 
