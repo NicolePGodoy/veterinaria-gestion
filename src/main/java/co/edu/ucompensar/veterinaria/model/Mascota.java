@@ -1,6 +1,7 @@
 package co.edu.ucompensar.veterinaria.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,8 @@ public class Mascota {
     private Long id;
     private String nombre;
     private String especie;
+    private String raza;
+    private LocalDate fechaNacimiento;
     private String nombrePropietario;
     private String telefonoPropietario;
 
@@ -23,6 +26,10 @@ public class Mascota {
     public void setNombre(String nombre) { this.nombre = nombre; }
     public String getEspecie() { return especie; }
     public void setEspecie(String especie) { this.especie = especie; }
+    public String getRaza() { return raza; }
+    public void setRaza(String raza) { this.raza = raza; }
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
     public String getNombrePropietario() { return nombrePropietario; }
     public void setNombrePropietario(String nombrePropietario) { this.nombrePropietario = nombrePropietario; }
     public String getTelefonoPropietario() { return telefonoPropietario; }
