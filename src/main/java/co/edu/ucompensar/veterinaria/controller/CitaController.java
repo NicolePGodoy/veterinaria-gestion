@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Map;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+
 @RestController
 @RequestMapping("/api/citas")
 public class CitaController {
@@ -21,5 +25,10 @@ public class CitaController {
     @PostMapping
     public ResponseEntity<Cita> agendar(@RequestBody Cita cita) {
         return ResponseEntity.status(HttpStatus.CREATED).body(citaService.agendar(cita));
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<Cita> actualizarEstado(@PathVariable Long id, @RequestBody Map<String, String> cuerpo) {
+        return ResponseEntity.ok(citaService.cambiarEstado(id, cuerpo.get("estado")));
     }
 }
