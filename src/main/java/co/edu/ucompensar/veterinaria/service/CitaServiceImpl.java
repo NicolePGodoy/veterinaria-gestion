@@ -1,6 +1,7 @@
 package co.edu.ucompensar.veterinaria.service;
 
 import co.edu.ucompensar.veterinaria.model.Cita;
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 import co.edu.ucompensar.veterinaria.repository.CitaRepository;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
 import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
@@ -25,12 +26,25 @@ public class CitaServiceImpl implements CitaService {
 
     @Override
     public Cita agendar(Cita cita) {
+        exigirDatosCompletos(cita);
         Long mascotaId = cita.getMascota().getId();
         exigirMascotaExistente(mascotaId);
         exigirFechaFutura(cita);
         exigirHorarioLibre(mascotaId, cita);
         cita.setEstado(PENDIENTE);
         return citaRepository.save(cita);
+    }
+
+    private void exigirDatosCompletos(Cita cita) {
+        if (cita.getMascota() == null || cita.getMascota().getId() == null) {
+            throw new ValidacionException("La mascota de la cita es obligatoria");
+        }
+        if (cita.getFecha() == null) {
+            throw new ValidacionException("La fecha de la cita es obligatoria");
+        }
+        if (cita.getVeterinarioAsignado() == null || cita.getVeterinarioAsignado().isBlank()) {
+            throw new ValidacionException("El veterinario asignado es obligatorio");
+        }
     }
 
     @Override
