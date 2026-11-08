@@ -175,4 +175,17 @@ class CitaServiceImplTest {
         assertThrows(ValidacionException.class, () -> citaService.agendar(cita));
         verify(citaRepository, never()).save(any());
     }
+    @Test
+    void cambiarEstado_estadoDesconocido_lanzaValidacionYNoGuarda() {
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> citaService.cambiarEstado(5L, "FINALIZADA"));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void cambiarEstado_estadoNulo_lanzaValidacionYNoGuarda() {
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> citaService.cambiarEstado(5L, null));
+        verify(citaRepository, never()).save(any());
+    }
 }
