@@ -1,22 +1,36 @@
 package co.edu.ucompensar.veterinaria.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
+import co.edu.ucompensar.veterinaria.model.Cita;
 import co.edu.ucompensar.veterinaria.model.Mascota;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import co.edu.ucompensar.veterinaria.exception.ValidacionException;
-import co.edu.ucompensar.veterinaria.model.Cita;
-import java.util.List;
-import java.util.Optional;
-import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
-import org.mockito.ArgumentCaptor;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
+/**
+ * Prueba unitaria pura: sin Spring y sin base de datos.
+ * Se prueba MascotaServiceImpl; el repositorio es un doble de Mockito.
+ */
 @ExtendWith(MockitoExtension.class)
 class MascotaServiceImplTest {
 
@@ -26,141 +40,153 @@ class MascotaServiceImplTest {
     @InjectMocks
     private MascotaServiceImpl mascotaService;
 
-    private Mascota mascotaValida() {
-        Mascota mascota = new Mascota();
-        mascota.setNombre("Firulais");
-        mascota.setEspecie("perro");
-        mascota.setNombrePropietario("Ana Gómez");
-        mascota.setTelefonoPropietario("3001234567");
-        return mascota;
-    }
+    // ---------- RF-01 Registrar ----------
 
     @Test
-    void registrar_datosValidos_guardaMascota() {
-        // Arrange
-        Mascota entrada = mascotaValida();
+    @DisplayName("RF-01 datos válidos: guarda y devuelve la mascota con id")
+    void registrar_valida_guardaYDevuelveId() {
+        Mascota nueva = mascotaValida();
         Mascota guardada = mascotaValida();
         guardada.setId(1L);
-        when(mascotaRepository.save(entrada)).thenReturn(guardada);
+        when(mascotaRepository.save(nueva)).thenReturn(guardada);
 
-        // Act
-        Mascota resultado = mascotaService.registrar(entrada);
+        Mascota resultado = mascotaService.registrar(nueva);
 
-        // Assert
         assertEquals(1L, resultado.getId());
-        verify(mascotaRepository).save(entrada);
+        verify(mascotaRepository).save(nueva);
     }
 
-    @Test
-    void registrar_nombreVacio_lanzaValidacionYNoGuarda() {
-        // Arrange
-        Mascota mascota = mascotaValida();
-        mascota.setNombre("");
+    /*
+     * Partición de equivalencia sobre "nombre":
+     *   clase válida   -> texto con contenido  (cubierta en la prueba anterior)
+     *   clases inválidas -> null, "" y solo espacios
+     * Si "" o "   " pasan, el servicio solo valida null: es un hallazgo
+     * que se registra como incidencia o se lleva como pregunta al docente.
+     */
+    @ParameterizedTest(name = "RF-01 nombre inválido [{0}] se rechaza sin guardar")
+    @NullAndEmptySource
+    @ValueSource(strings = {"   "})
+    void registrar_nombreInvalido_rechaza(String nombre) {
+        Mascota m = mascotaValida();
+        m.setNombre(nombre);
 
-        // Act + Assert
-        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(m));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @ParameterizedTest(name = "RF-01 especie inválida [{0}] se rechaza sin guardar")
+    @NullAndEmptySource
+    @ValueSource(strings = {"   "})
+    void registrar_especieInvalida_rechaza(String especie) {
+        Mascota m = mascotaValida();
+        m.setEspecie(especie);
+
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(m));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    // Reglas del grupo: el propietario también es obligatorio al registrar
+    @Test
+    @DisplayName("RF-01 sin nombre del propietario: rechaza sin guardar")
+    void registrar_sinNombrePropietario_rechaza() {
+        Mascota m = mascotaValida();
+        m.setNombrePropietario("  ");
+
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(m));
         verify(mascotaRepository, never()).save(any());
     }
 
     @Test
-    void registrar_especieVacia_lanzaValidacionYNoGuarda() {
-        // Arrange
-        Mascota mascota = mascotaValida();
-        mascota.setEspecie("");
+    @DisplayName("RF-01 sin teléfono del propietario: rechaza sin guardar")
+    void registrar_sinTelefonoPropietario_rechaza() {
+        Mascota m = mascotaValida();
+        m.setTelefonoPropietario(null);
 
-        // Act + Assert
-        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
+        assertThrows(ValidacionException.class, () -> mascotaService.registrar(m));
         verify(mascotaRepository, never()).save(any());
     }
 
-    @Test
-    void registrar_sinNombrePropietario_lanzaValidacionYNoGuarda() {
-        // Arrange
-        Mascota mascota = mascotaValida();
-        mascota.setNombrePropietario("  ");
-
-        // Act + Assert
-        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
-        verify(mascotaRepository, never()).save(any());
-    }
+    // ---------- RF-02 Consultar ----------
 
     @Test
-    void registrar_sinTelefonoPropietario_lanzaValidacionYNoGuarda() {
-        // Arrange
-        Mascota mascota = mascotaValida();
-        mascota.setTelefonoPropietario(null);
+    @DisplayName("RF-02 id existente: devuelve la mascota con sus citas")
+    void consultar_existente_devuelveConCitas() {
+        Mascota luna = mascotaValida();
+        luna.setId(1L);
+        luna.setCitas(List.of(new Cita(), new Cita()));
+        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(luna));
 
-        // Act + Assert
-        assertThrows(ValidacionException.class, () -> mascotaService.registrar(mascota));
-        verify(mascotaRepository, never()).save(any());
-    }
-
-    @Test
-    void consultar_mascotaExistente_devuelveMascotaConCitas() {
-        // Arrange
-        Mascota mascota = mascotaValida();
-        mascota.setId(1L);
-        mascota.setCitas(List.of(new Cita()));
-        when(mascotaRepository.findById(1L)).thenReturn(Optional.of(mascota));
-
-        // Act
         Mascota resultado = mascotaService.consultar(1L);
 
-        // Assert
-        assertSame(mascota, resultado);
-        assertEquals(1, resultado.getCitas().size());
+        assertSame(luna, resultado);
+        assertEquals(2, resultado.getCitas().size());
     }
 
     @Test
-    void consultar_idInexistente_lanzaNoEncontrado() {
-        // Arrange
+    @DisplayName("RF-02 id inexistente: lanza RecursoNoEncontradoException")
+    void consultar_inexistente_lanzaNoEncontrado() {
         when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act + Assert
-        assertThrows(RecursoNoEncontradoException.class, () -> mascotaService.consultar(99L));
+        RecursoNoEncontradoException e = assertThrows(RecursoNoEncontradoException.class,
+                () -> mascotaService.consultar(99L));
+        assertNotNull(e.getMessage());
     }
 
+    // ---------- RF-05 Actualizar propietario ----------
+
     @Test
-    void actualizarPropietario_datosValidos_guardaCambios() {
-        // Arrange
+    @DisplayName("RF-05 datos válidos: guarda los nuevos datos del propietario")
+    void actualizarPropietario_valido_guardaCambios() {
         Mascota existente = mascotaValida();
         existente.setId(1L);
         when(mascotaRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(mascotaRepository.save(any(Mascota.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // Act
-        mascotaService.actualizarPropietario(1L, "Luis Pérez", "3109876543");
+        mascotaService.actualizarPropietario(1L, "Carlos Gómez", "3109876543");
 
-        // Assert
+        // verify solo dice que se llamó; el captor dice CON QUÉ datos
         ArgumentCaptor<Mascota> captor = ArgumentCaptor.forClass(Mascota.class);
         verify(mascotaRepository).save(captor.capture());
-        assertEquals("Luis Pérez", captor.getValue().getNombrePropietario());
+        assertEquals("Carlos Gómez", captor.getValue().getNombrePropietario());
         assertEquals("3109876543", captor.getValue().getTelefonoPropietario());
+        assertEquals("Luna", captor.getValue().getNombre(), "No debe tocar los demás campos");
     }
 
     @Test
-    void actualizarPropietario_nombreVacio_lanzaValidacionYNoGuarda() {
-        // Act + Assert
+    @DisplayName("RF-05 id inexistente: rechaza y no guarda")
+    void actualizarPropietario_inexistente_noGuarda() {
+        when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNoEncontradoException.class,
+                () -> mascotaService.actualizarPropietario(99L, "X", "1"));
+        verify(mascotaRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("RF-05 nombre del propietario vacío: rechaza sin guardar")
+    void actualizarPropietario_nombreVacio_rechaza() {
         assertThrows(ValidacionException.class,
                 () -> mascotaService.actualizarPropietario(1L, "", "3109876543"));
         verify(mascotaRepository, never()).save(any());
     }
 
     @Test
-    void actualizarPropietario_telefonoVacio_lanzaValidacionYNoGuarda() {
-        // Act + Assert
+    @DisplayName("RF-05 teléfono del propietario vacío: rechaza sin guardar")
+    void actualizarPropietario_telefonoVacio_rechaza() {
         assertThrows(ValidacionException.class,
-                () -> mascotaService.actualizarPropietario(1L, "Luis Pérez", " "));
+                () -> mascotaService.actualizarPropietario(1L, "Carlos Gómez", " "));
         verify(mascotaRepository, never()).save(any());
     }
 
-    @Test
-    void actualizarPropietario_idInexistente_lanzaNoEncontradoYNoGuarda() {
-        // Arrange
-        when(mascotaRepository.findById(99L)).thenReturn(Optional.empty());
+    // ---------- Datos de prueba ----------
 
-        // Act + Assert
-        assertThrows(RecursoNoEncontradoException.class,
-                () -> mascotaService.actualizarPropietario(99L, "Luis Pérez", "3109876543"));
-        verify(mascotaRepository, never()).save(any());
+    private Mascota mascotaValida() {
+        Mascota m = new Mascota();
+        m.setNombre("Luna");
+        m.setEspecie("Perro");
+        m.setRaza("Criollo");
+        m.setNombrePropietario("Ana Pérez");
+        m.setTelefonoPropietario("3001234567");
+        return m;
     }
 }
