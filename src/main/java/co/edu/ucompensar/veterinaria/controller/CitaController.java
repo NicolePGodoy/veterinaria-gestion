@@ -3,6 +3,11 @@ package co.edu.ucompensar.veterinaria.controller;
 import co.edu.ucompensar.veterinaria.service.CitaService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import co.edu.ucompensar.veterinaria.model.Cita;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/citas")
@@ -12,5 +17,9 @@ public class CitaController {
 
     public CitaController(CitaService citaService) {
         this.citaService = citaService;
+    }
+    @PostMapping
+    public ResponseEntity<Cita> agendar(@RequestBody Cita cita) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(citaService.agendar(cita));
     }
 }
