@@ -7,6 +7,7 @@ import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
 import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
 import co.edu.ucompensar.veterinaria.exception.ReglaNegocioException;
 import java.time.LocalDateTime;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +16,8 @@ public class CitaServiceImpl implements CitaService {
     private static final String PENDIENTE = "PENDIENTE";
     private static final String ATENDIDA = "ATENDIDA";
     private static final String CANCELADA = "CANCELADA";
+    private static final  Set<String> ESTADOS_VALIDOS =
+            Set.of(PENDIENTE, ATENDIDA, CANCELADA);
 
     private final MascotaRepository mascotaRepository;
     private final CitaRepository citaRepository;
@@ -49,6 +52,7 @@ public class CitaServiceImpl implements CitaService {
 
     @Override
     public Cita cambiarEstado(Long id, String nuevoEstado) {
+        exigirEstadoValido(nuevoEstado);
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Cita no existe: " + id));
         if (ATENDIDA.equals(cita.getEstado()) && CANCELADA.equals(nuevoEstado)) {
@@ -56,6 +60,12 @@ public class CitaServiceImpl implements CitaService {
         }
         cita.setEstado(nuevoEstado);
         return citaRepository.save(cita);
+    }
+
+    private void exigirEstadoValido(String estado) {
+        if (estado == null || !ESTADOS_VALIDOS.contains(estado)) {
+            throw new ValidacionException("El estado debe ser PENDIENTE, ATENDIDA o CANCELADA");
+        }
     }
 
     private void exigirMascotaExistente(Long mascotaId) {
