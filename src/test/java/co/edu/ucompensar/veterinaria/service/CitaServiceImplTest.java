@@ -2,6 +2,7 @@ package co.edu.ucompensar.veterinaria.service;
 
 import co.edu.ucompensar.veterinaria.model.Cita;
 import co.edu.ucompensar.veterinaria.model.Mascota;
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 import co.edu.ucompensar.veterinaria.repository.CitaRepository;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
 import org.junit.jupiter.api.Test;
@@ -143,5 +144,35 @@ class CitaServiceImplTest {
 
         // Assert
         assertEquals("CANCELADA", resultado.getEstado());
+    }
+
+    @Test
+    void agendar_citaSinMascota_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        cita.setMascota(null);
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> citaService.agendar(cita));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void agendar_sinFecha_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        cita.setFecha(null);
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> citaService.agendar(cita));
+        verify(citaRepository, never()).save(any());
+    }
+
+    @Test
+    void agendar_sinVeterinarioAsignado_lanzaValidacionYNoGuarda() {
+        // Arrange
+        Cita cita = citaFutura(1L);
+        cita.setVeterinarioAsignado("  ");
+        // Act + Assert
+        assertThrows(ValidacionException.class, () -> citaService.agendar(cita));
+        verify(citaRepository, never()).save(any());
     }
 }
