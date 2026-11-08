@@ -15,6 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -80,5 +84,56 @@ class CitaControllerTest {
 
         mockMvc.perform(post("/api/citas").contentType(MediaType.APPLICATION_JSON).content(JSON_CITA))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void actualizarEstado_pendienteAAtendida_responde200() throws Exception {
+        // Arrange
+        Cita cita = citaGuardada();
+        cita.setEstado("ATENDIDA");
+        when(citaService.cambiarEstado(7L, "ATENDIDA")).thenReturn(cita);
+
+        // Act + Assert
+        mockMvc.perform(put("/api/citas/7/estado").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"estado\":\"ATENDIDA\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.estado").value("ATENDIDA"));
+    }
+
+    @Test
+    void actualizarEstado_atendidaACancelada_responde409() throws Exception {
+        // Arrange
+        when(citaService.cambiarEstado(7L, "CANCELADA"))
+                .thenThrow(new ReglaNegocioException("Una cita atendida no puede cancelarse"));
+
+        // Act + Assert
+        mockMvc.perform(put("/api/citas/7/estado").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"estado\":\"CANCELADA\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.mensaje").value("Una cita atendida no puede cancelarse"));
+    }
+
+    @Test
+    void actualizarEstado_citaInexistente_responde404() throws Exception {
+        // Arrange
+        when(citaService.cambiarEstado(eq(99L), any()))
+                .thenThrow(new RecursoNoEncontradoException("Cita no existe: 99"));
+
+        // Act + Assert
+        mockMvc.perform(put("/api/citas/99/estado").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"estado\":\"ATENDIDA\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void actualizarEstado_estadoInvalido_responde400() throws Exception {
+        // Arrange
+        when(citaService.cambiarEstado(7L, "FINALIZADA"))
+                .thenThrow(new ValidacionException("El estado debe ser PENDIENTE, ATENDIDA o CANCELADA"));
+
+        // Act + Assert
+        mockMvc.perform(put("/api/citas/7/estado").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"estado\":\"FINALIZADA\"}"))
+                .andExpect(status().isBadRequest());
     }
 }
