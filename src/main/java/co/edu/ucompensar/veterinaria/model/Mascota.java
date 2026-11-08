@@ -1,5 +1,6 @@
 package co.edu.ucompensar.veterinaria.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,7 +18,9 @@ public class Mascota {
     private String nombrePropietario;
     private String telefonoPropietario;
 
+    // Corta el ciclo Mascota -> citas -> mascota al convertir a JSON (GET /api/mascotas/{id})
     @OneToMany(mappedBy = "mascota")
+    @JsonIgnoreProperties("mascota")
     private List<Cita> citas = new ArrayList<>();
 
     public Long getId() { return id; }
