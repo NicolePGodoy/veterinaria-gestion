@@ -1,11 +1,13 @@
 package co.edu.ucompensar.veterinaria.service;
 
 import co.edu.ucompensar.veterinaria.model.Cita;
+import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 import co.edu.ucompensar.veterinaria.repository.CitaRepository;
 import co.edu.ucompensar.veterinaria.repository.MascotaRepository;
 import co.edu.ucompensar.veterinaria.exception.RecursoNoEncontradoException;
 import co.edu.ucompensar.veterinaria.exception.ReglaNegocioException;
 import java.time.LocalDateTime;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +16,8 @@ public class CitaServiceImpl implements CitaService {
     private static final String PENDIENTE = "PENDIENTE";
     private static final String ATENDIDA = "ATENDIDA";
     private static final String CANCELADA = "CANCELADA";
+    private static final  Set<String> ESTADOS_VALIDOS =
+            Set.of(PENDIENTE, ATENDIDA, CANCELADA);
 
     private final MascotaRepository mascotaRepository;
     private final CitaRepository citaRepository;
@@ -25,6 +29,7 @@ public class CitaServiceImpl implements CitaService {
 
     @Override
     public Cita agendar(Cita cita) {
+        exigirDatosCompletos(cita);
         Long mascotaId = cita.getMascota().getId();
         exigirMascotaExistente(mascotaId);
         exigirFechaFutura(cita);
@@ -33,8 +38,21 @@ public class CitaServiceImpl implements CitaService {
         return citaRepository.save(cita);
     }
 
+    private void exigirDatosCompletos(Cita cita) {
+        if (cita.getMascota() == null || cita.getMascota().getId() == null) {
+            throw new ValidacionException("La mascota de la cita es obligatoria");
+        }
+        if (cita.getFecha() == null) {
+            throw new ValidacionException("La fecha de la cita es obligatoria");
+        }
+        if (cita.getVeterinarioAsignado() == null || cita.getVeterinarioAsignado().isBlank()) {
+            throw new ValidacionException("El veterinario asignado es obligatorio");
+        }
+    }
+
     @Override
     public Cita cambiarEstado(Long id, String nuevoEstado) {
+        exigirEstadoValido(nuevoEstado);
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Cita no existe: " + id));
         if (ATENDIDA.equals(cita.getEstado()) && CANCELADA.equals(nuevoEstado)) {
@@ -42,6 +60,12 @@ public class CitaServiceImpl implements CitaService {
         }
         cita.setEstado(nuevoEstado);
         return citaRepository.save(cita);
+    }
+
+    private void exigirEstadoValido(String estado) {
+        if (estado == null || !ESTADOS_VALIDOS.contains(estado)) {
+            throw new ValidacionException("El estado debe ser PENDIENTE, ATENDIDA o CANCELADA");
+        }
     }
 
     private void exigirMascotaExistente(Long mascotaId) {
