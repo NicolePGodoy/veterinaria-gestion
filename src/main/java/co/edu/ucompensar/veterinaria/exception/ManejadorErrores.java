@@ -35,6 +35,6 @@ public class ManejadorErrores {
     }
 
     private ResponseEntity<Map<String, String>> respuesta(HttpStatus estado, String mensaje) {
-        return ResponseEntity.status(estado).body(Map.of("error", mensaje == null ? "" : mensaje));
+        return ResponseEntity.status(estado).body(Map.of("mensaje", mensaje == null ? "" : mensaje));
     }
 }
