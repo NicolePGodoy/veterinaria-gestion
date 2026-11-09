@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *   ValidacionException          -> 400 Bad Request
  *   ReglaNegocioException        -> 409 Conflict
  *
- * Cuerpo de error uniforme: {"error": "mensaje"}
+ * Cuerpo de error uniforme: {"mensaje": ""}
  */
 @RestControllerAdvice
 public class ManejadorErrores {
@@ -35,6 +35,6 @@ public class ManejadorErrores {
     }
 
     private ResponseEntity<Map<String, String>> respuesta(HttpStatus estado, String mensaje) {
-        return ResponseEntity.status(estado).body(Map.of("error", mensaje == null ? "" : mensaje));
+        return ResponseEntity.status(estado).body(Map.of("mensaje", mensaje == null ? "" : mensaje));
     }
 }

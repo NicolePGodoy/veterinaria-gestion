@@ -5,6 +5,7 @@ import co.edu.ucompensar.veterinaria.exception.ReglaNegocioException;
 import co.edu.ucompensar.veterinaria.model.Cita;
 import co.edu.ucompensar.veterinaria.model.Mascota;
 import co.edu.ucompensar.veterinaria.service.CitaService;
+import co.edu.ucompensar.veterinaria.exception.ManejadorErrores;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @ExtendWith(MockitoExtension.class)
 class CitaControllerTest {
