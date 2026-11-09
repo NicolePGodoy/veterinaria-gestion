@@ -19,6 +19,7 @@ import co.edu.ucompensar.veterinaria.exception.ValidacionException;
 import co.edu.ucompensar.veterinaria.model.Cita;
 import co.edu.ucompensar.veterinaria.model.Mascota;
 import co.edu.ucompensar.veterinaria.service.MascotaService;
+import co.edu.ucompensar.veterinaria.exception.ManejadorErrores;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -78,7 +79,7 @@ class MascotaControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"especie\":\"Perro\"}"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("El nombre es obligatorio"));
+                .andExpect(jsonPath("$.mensaje").value("El nombre es obligatorio"));
     }
 
     @Test
@@ -123,7 +124,7 @@ class MascotaControllerTest {
 
         mockMvc.perform(get("/api/mascotas/99"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Mascota no existe: 99"));
+                .andExpect(jsonPath("$.mensaje").value("Mascota no existe: 99"));
     }
 
     // ---------- RF-05 Actualizar propietario ----------
