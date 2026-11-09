@@ -1,11 +1,23 @@
 package co.edu.ucompensar.veterinaria.controller;
 
+import co.edu.ucompensar.veterinaria.dto.ActualizarPropietarioRequest;
 import co.edu.ucompensar.veterinaria.model.Mascota;
 import co.edu.ucompensar.veterinaria.service.MascotaService;
-import org.springframework.http.HttpStatus;
+import java.net.URI;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * RF-01, RF-02 y RF-05.
+ * El controlador no tiene reglas de negocio: recibe, delega al servicio y arma la respuesta HTTP.
+ * Los errores los traduce ManejadorErrores, no este controlador.
+ */
 @RestController
 @RequestMapping("/api/mascotas")
 public class MascotaController {
@@ -16,22 +28,27 @@ public class MascotaController {
         this.mascotaService = mascotaService;
     }
 
-    /** RF-01: POST /api/mascotas -> 201 Created con la mascota y su id. */
+    /** RF-01. 201 Created con la cabecera Location apuntando al recurso nuevo. */
     @PostMapping
     public ResponseEntity<Mascota> registrar(@RequestBody Mascota mascota) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(mascotaService.registrar(mascota));
+        Mascota guardada = mascotaService.registrar(mascota);
+        return ResponseEntity
+                .created(URI.create("/api/mascotas/" + guardada.getId()))
+                .body(guardada);
     }
 
-    /** RF-02: GET /api/mascotas/{id} -> 200 OK con la mascota y sus citas. */
+    /** RF-02. 200 con la mascota y su lista de citas; 404 si no existe. */
     @GetMapping("/{id}")
     public ResponseEntity<Mascota> consultar(@PathVariable Long id) {
         return ResponseEntity.ok(mascotaService.consultar(id));
     }
 
-    /** RF-05: PUT /api/mascotas/{id} -> 200 OK con los datos del propietario actualizados. */
+    /** RF-05. 200 con la mascota actualizada; 404 si no existe. */
     @PutMapping("/{id}")
-    public ResponseEntity<Mascota> actualizar(@PathVariable Long id, @RequestBody Mascota datos) {
-        return ResponseEntity.ok(mascotaService.actualizarPropietario(
-                id, datos.getNombrePropietario(), datos.getTelefonoPropietario()));
+    public ResponseEntity<Mascota> actualizar(@PathVariable Long id,
+                                              @RequestBody ActualizarPropietarioRequest datos) {
+        Mascota actualizada = mascotaService.actualizarPropietario(
+                id, datos.nombrePropietario(), datos.telefonoPropietario());
+        return ResponseEntity.ok(actualizada);
     }
 }
