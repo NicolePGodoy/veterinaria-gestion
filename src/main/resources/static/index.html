@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Veterinaria: mascotas y citas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="saltar" href="#ficha">Ir a la ficha de la mascota</a>
+
+  <header class="barra">
+    <h1 class="marca">Veterinaria</h1>
+    <form id="form-buscar" class="buscar" role="search" novalidate>
+      <label for="buscar-id">ID de la mascota</label>
+      <input id="buscar-id" name="id" type="number" min="1" step="1" inputmode="numeric" placeholder="Ej. 12">
+      <button type="submit" class="btn btn-primario">Buscar mascota</button>
+    </form>
+  </header>
+
+  <main class="layout">
+    <aside class="lateral">
+      <section class="panel" aria-labelledby="t-registrar">
+        <h2 id="t-registrar">Registrar mascota</h2>
+        <form id="form-registrar" class="formulario" novalidate>
+          <div class="campo">
+            <label for="r-nombre">Nombre <span class="req">obligatorio</span></label>
+            <input id="r-nombre" name="nombre" autocomplete="off">
+          </div>
+          <div class="campo">
+            <label for="r-especie">Especie <span class="req">obligatorio</span></label>
+            <input id="r-especie" name="especie" list="lista-especies" autocomplete="off">
+            <datalist id="lista-especies">
+              <option value="Perro"></option>
+              <option value="Gato"></option>
+              <option value="Ave"></option>
+              <option value="Conejo"></option>
+            </datalist>
+          </div>
+          <div class="fila">
+            <div class="campo">
+              <label for="r-raza">Raza</label>
+              <input id="r-raza" name="raza" autocomplete="off">
+            </div>
+            <div class="campo">
+              <label for="r-nacimiento">Fecha de nacimiento</label>
+              <input id="r-nacimiento" name="fechaNacimiento" type="date">
+            </div>
+          </div>
+          <div class="campo">
+            <label for="r-propietario">Nombre del propietario <span class="req">obligatorio</span></label>
+            <input id="r-propietario" name="nombrePropietario" autocomplete="off">
+          </div>
+          <div class="campo">
+            <label for="r-telefono">Teléfono del propietario <span class="req">obligatorio</span></label>
+            <input id="r-telefono" name="telefonoPropietario" type="tel" autocomplete="off">
+          </div>
+          <button type="submit" class="btn btn-primario">Registrar mascota</button>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="t-recientes">
+        <h2 id="t-recientes">Consultadas hace poco</h2>
+        <ul id="recientes" class="recientes"></ul>
+        <p id="recientes-vacio" class="nota">Aquí aparecerán las mascotas que registres o consultes.</p>
+      </section>
+    </aside>
+
+    <section id="ficha" class="ficha" tabindex="-1" aria-label="Ficha de la mascota">
+      <div class="vacio">
+        <h2>Busca una mascota por su ID</h2>
+        <p>Escribe el ID arriba para ver su ficha y sus citas, o registra una mascota nueva en el formulario de la izquierda.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="avisos" class="avisos" aria-live="polite"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
